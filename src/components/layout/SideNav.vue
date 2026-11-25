@@ -122,10 +122,6 @@ function closeOnNavigate(): void {
           {{ weeklyPercent >= 100 ? '目标达成，保持节奏。' : `还差 ${Math.max(weeklyGoal - applications.weeklyApplied, 0)} 次投递，别让好岗位等太久。` }}
         </p>
       </div>
-      <div class="sidebar-status">
-        <span class="sidebar-status__dot" />
-        Spring Boot API
-      </div>
     </div>
   </aside>
 </template>

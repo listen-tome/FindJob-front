@@ -260,23 +260,6 @@
   color: var(--sidebar-muted);
 }
 
-.sidebar-status {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 0 11px;
-  font-size: 9.5px;
-  color: var(--sidebar-muted);
-}
-
-.sidebar-status__dot {
-  width: 5px;
-  height: 5px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(217, 239, 111, 0.12);
-}
-
 .app-main {
   min-height: 100vh;
   margin-left: calc(var(--sidebar-w) + var(--sidebar-gap) * 2);

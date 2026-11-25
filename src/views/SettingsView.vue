@@ -287,15 +287,6 @@ onMounted(syncForm)
             {{ auth.user?.email }}
           </div>
         </section>
-
-        <section class="card side-card">
-          <div class="side-card__head">
-            <div class="card-head__title">数据模式</div>
-            <Check :size="15" />
-          </div>
-          <p class="side-card__desc">前端通过 Spring Boot API 读写数据，所有记录由后端持久化。</p>
-          <span class="api-badge">SPRING BOOT API</span>
-        </section>
       </aside>
     </div>
 
@@ -727,18 +718,6 @@ onMounted(syncForm)
   font-size: 8px;
   color: var(--faint);
   border-top: 1px solid var(--line);
-}
-
-.api-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  margin-top: 12px;
-  font-size: 7.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--brand);
-  background: var(--brand-soft);
-  border-radius: 5px;
 }
 
 .password-form {
