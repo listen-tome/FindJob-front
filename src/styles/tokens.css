@@ -1,0 +1,147 @@
+:root {
+  color-scheme: light;
+  --font-sans: 'Manrope Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Manrope Variable', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  --bg: #f4f2ec;
+  --bg-deep: #ebe8df;
+  --surface: #fffdfa;
+  --surface-solid: #ffffff;
+  --surface-soft: #f8f6f0;
+  --surface-muted: #efede5;
+  --ink: #17211d;
+  --ink-soft: #3f4b45;
+  --muted: #737d77;
+  --faint: #99a29c;
+  --line: #e7e2d8;
+  --line-strong: #d7d1c4;
+
+  --brand: #155c49;
+  --brand-deep: #0b3e31;
+  --brand-mid: #2e7a63;
+  --brand-soft: #e4efe8;
+  --brand-tint: #cfe3d7;
+  --accent: #d9ef6f;
+  --accent-soft: #f0f7cd;
+
+  --amber: #b87918;
+  --amber-soft: #fbf1dc;
+  --coral: #cc6249;
+  --coral-soft: #fbece7;
+  --blue: #4e6fd0;
+  --blue-soft: #eaf0ff;
+  --purple: #7465a8;
+  --purple-soft: #f0edf9;
+  --danger: #c54b3c;
+  --danger-soft: #f9e8e4;
+
+  --sidebar: #123f33;
+  --sidebar-deep: #0a2f25;
+  --sidebar-ink: #f1f5f1;
+  --sidebar-muted: #9eb8ad;
+  --sidebar-line: rgba(255, 255, 255, 0.1);
+
+  --shadow-xs: 0 1px 2px rgba(31, 39, 33, 0.04);
+  --shadow-sm: 0 4px 14px rgba(31, 39, 33, 0.045);
+  --shadow-md: 0 14px 40px rgba(31, 39, 33, 0.075);
+  --shadow-lg: 0 26px 70px rgba(22, 34, 27, 0.13);
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+
+  --sidebar-w: 248px;
+  --sidebar-gap: 18px;
+  --header-h: 76px;
+  --content-max: 1440px;
+
+  --el-color-primary: #155c49;
+  --el-color-primary-light-3: #4d8575;
+  --el-color-primary-light-5: #82aa9e;
+  --el-color-primary-light-7: #b5cec6;
+  --el-color-primary-light-8: #cfe0da;
+  --el-color-primary-light-9: #e6efeb;
+  --el-color-primary-dark-2: #0e4637;
+  --el-border-radius-base: 11px;
+  --el-border-radius-small: 8px;
+  --el-border-radius-round: 999px;
+  --el-font-family: var(--font-sans);
+  --el-text-color-primary: var(--ink);
+  --el-text-color-regular: var(--ink-soft);
+  --el-text-color-secondary: var(--muted);
+  --el-border-color: var(--line);
+  --el-border-color-light: var(--line);
+  --el-border-color-lighter: var(--line);
+  --el-fill-color-blank: var(--surface-solid);
+  --el-bg-color: var(--surface-solid);
+  --el-bg-color-overlay: var(--surface-solid);
+  --el-mask-color: rgba(12, 31, 24, 0.46);
+}
+
+html.dark {
+  color-scheme: dark;
+  --bg: #0f1613;
+  --bg-deep: #0a100d;
+  --surface: #151f1b;
+  --surface-solid: #18231e;
+  --surface-soft: #1b2721;
+  --surface-muted: #22302a;
+  --ink: #edf2ee;
+  --ink-soft: #c4cec8;
+  --muted: #8f9d96;
+  --faint: #6f7e76;
+  --line: #2a3831;
+  --line-strong: #38473f;
+
+  --brand: #67b79c;
+  --brand-deep: #b9e6d5;
+  --brand-mid: #4f9e84;
+  --brand-soft: #1c332b;
+  --brand-tint: #2a493e;
+  --accent: #d9ef6f;
+  --accent-soft: #2a3418;
+
+  --amber: #e2ad4f;
+  --amber-soft: #332916;
+  --coral: #e38269;
+  --coral-soft: #36231e;
+  --blue: #87a0eb;
+  --blue-soft: #1e273c;
+  --purple: #a699d5;
+  --purple-soft: #292439;
+  --danger: #e37969;
+  --danger-soft: #38231f;
+
+  --sidebar: #0d2b23;
+  --sidebar-deep: #081f19;
+  --sidebar-ink: #f0f5f1;
+  --sidebar-muted: #8eaa9e;
+  --sidebar-line: rgba(255, 255, 255, 0.08);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 16px 44px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.42);
+
+  --el-color-primary: #67b79c;
+  --el-color-primary-light-3: #7fc4ac;
+  --el-color-primary-light-5: #9bd3bf;
+  --el-color-primary-light-7: #bce2d4;
+  --el-color-primary-light-8: #cdeade;
+  --el-color-primary-light-9: #1e352d;
+  --el-color-primary-dark-2: #86c7b1;
+  --el-text-color-primary: var(--ink);
+  --el-text-color-regular: var(--ink-soft);
+  --el-text-color-secondary: var(--muted);
+  --el-border-color: var(--line);
+  --el-border-color-light: var(--line);
+  --el-border-color-lighter: var(--line);
+  --el-fill-color-blank: var(--surface-solid);
+  --el-bg-color: var(--surface-solid);
+  --el-bg-color-overlay: var(--surface-solid);
+  --el-fill-color-light: var(--surface-soft);
+  --el-fill-color-lighter: var(--surface-soft);
+  --el-mask-color: rgba(0, 0, 0, 0.62);
+}

@@ -1,0 +1,1045 @@
+openapi: 3.0.3
+info:
+  title: OfferPilot API
+  version: 1.0.0
+  description: |
+    OfferPilot 求职投递管理平台后端接口。
+    前端 Vue 3 项目通过 /api 调用本接口，不包含 Mock 数据。
+servers:
+  - url: http://localhost:8080/api
+    description: 本地 Spring Boot
+tags:
+  - name: Auth
+    description: 注册、登录与个人资料
+  - name: Applications
+    description: 投递记录
+  - name: Interviews
+    description: 面试日程
+  - name: Resumes
+    description: 简历库
+  - name: Dashboard
+    description: 工作台聚合
+  - name: Analytics
+    description: 数据分析聚合
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: 登录
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: 注册
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: 邮箱已存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: 当前用户
+      responses:
+        '200':
+          description: 当前用户资料
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/profile:
+    put:
+      tags: [Auth]
+      summary: 更新个人资料
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateInput'
+      responses:
+        '200':
+          description: 更新后的用户
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/password:
+    put:
+      tags: [Auth]
+      summary: 修改密码
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                  minLength: 6
+                newPassword:
+                  type: string
+                  minLength: 6
+      responses:
+        '204':
+          description: 修改成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /applications:
+    get:
+      tags: [Applications]
+      summary: 分页查询投递
+      parameters:
+        - name: keyword
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ApplicationStatus'
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/ApplicationChannel'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: ["updatedAt,desc", "updatedAt,asc", "appliedAt,desc", "appliedAt,asc", "company,asc"]
+            default: updatedAt,desc
+      responses:
+        '200':
+          description: 投递分页
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageApplication'
+    post:
+      tags: [Applications]
+      summary: 新增投递
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationInput'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /applications/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    get:
+      tags: [Applications]
+      summary: 查询单条投递
+      responses:
+        '200':
+          description: 投递详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Applications]
+      summary: 更新投递
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationInput'
+      responses:
+        '200':
+          description: 更新后的投递
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Applications]
+      summary: 删除投递
+      responses:
+        '204':
+          description: 删除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /applications/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    patch:
+      tags: [Applications]
+      summary: 更新投递状态
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  $ref: '#/components/schemas/ApplicationStatus'
+      responses:
+        '200':
+          description: 更新后的投递
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /interviews:
+    get:
+      tags: [Interviews]
+      summary: 查询面试
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/InterviewStatus'
+      responses:
+        '200':
+          description: 面试列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionInterview'
+    post:
+      tags: [Interviews]
+      summary: 新增面试
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewInput'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interview'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /interviews/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    put:
+      tags: [Interviews]
+      summary: 更新面试
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewInput'
+      responses:
+        '200':
+          description: 更新后的面试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interview'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Interviews]
+      summary: 删除面试
+      responses:
+        '204':
+          description: 删除成功
+
+  /interviews/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    patch:
+      tags: [Interviews]
+      summary: 更新面试状态
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  $ref: '#/components/schemas/InterviewStatus'
+      responses:
+        '200':
+          description: 更新后的面试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interview'
+
+  /resumes:
+    get:
+      tags: [Resumes]
+      summary: 简历列表
+      responses:
+        '200':
+          description: 简历列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResume'
+    post:
+      tags: [Resumes]
+      summary: 上传简历
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, name, targetRole]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                targetRole:
+                  type: string
+      responses:
+        '201':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resume'
+        '413':
+          description: 文件过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /resumes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    put:
+      tags: [Resumes]
+      summary: 更新简历信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, targetRole]
+              properties:
+                name:
+                  type: string
+                targetRole:
+                  type: string
+      responses:
+        '200':
+          description: 更新后的简历
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resume'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Resumes]
+      summary: 删除简历
+      responses:
+        '204':
+          description: 删除成功
+
+  /resumes/{id}/default:
+    parameters:
+      - $ref: '#/components/parameters/PathId'
+    patch:
+      tags: [Resumes]
+      summary: 设为默认简历
+      responses:
+        '200':
+          description: 更新后的简历
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resume'
+
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: 工作台聚合数据
+      responses:
+        '200':
+          description: 工作台数据
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+
+  /analytics:
+    get:
+      tags: [Analytics]
+      summary: 数据分析聚合
+      parameters:
+        - name: range
+          in: query
+          schema:
+            $ref: '#/components/schemas/AnalyticsRange'
+      responses:
+        '200':
+          description: 分析数据
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analytics'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PathId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: 参数校验失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: 未登录或认证失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    ApplicationStatus:
+      type: string
+      enum: [WISHLIST, APPLIED, SCREENING, INTERVIEW, OFFER, REJECTED]
+
+    ApplicationChannel:
+      type: string
+      enum: [BOSS, REFERRAL, OFFICIAL, LINKEDIN, CAMPUS, OTHER]
+
+    ApplicationPriority:
+      type: string
+      enum: [HIGH, MEDIUM, LOW]
+
+    InterviewType:
+      type: string
+      enum: [PHONE, VIDEO, ONSITE]
+
+    InterviewStatus:
+      type: string
+      enum: [UPCOMING, COMPLETED, CANCELLED]
+
+    AnalyticsRange:
+      type: string
+      enum: [30d, 90d, 365d]
+
+    User:
+      type: object
+      required:
+        [id, name, email, school, major, graduationYear, targetRole, location, bio, weeklyGoal]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        school:
+          type: string
+        major:
+          type: string
+        graduationYear:
+          type: integer
+        targetRole:
+          type: string
+        location:
+          type: string
+        bio:
+          type: string
+        weeklyGoal:
+          type: integer
+          minimum: 1
+          maximum: 30
+
+    UserUpdateInput:
+      type: object
+      required:
+        [name, school, major, graduationYear, targetRole, location, bio, weeklyGoal]
+      properties:
+        name:
+          type: string
+        school:
+          type: string
+        major:
+          type: string
+        graduationYear:
+          type: integer
+        targetRole:
+          type: string
+        location:
+          type: string
+        bio:
+          type: string
+        weeklyGoal:
+          type: integer
+          minimum: 1
+          maximum: 30
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        remember:
+          type: boolean
+          default: true
+
+    RegisterInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    Application:
+      type: object
+      required:
+        [id, company, position, location, salary, channel, status, priority, appliedAt, nextActionAt, tags, notes, resumeId, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        company:
+          type: string
+        position:
+          type: string
+        location:
+          type: string
+        salary:
+          type: string
+        channel:
+          $ref: '#/components/schemas/ApplicationChannel'
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        priority:
+          $ref: '#/components/schemas/ApplicationPriority'
+        appliedAt:
+          type: string
+          format: date
+          nullable: true
+        nextActionAt:
+          type: string
+          format: date
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+        resumeId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ApplicationInput:
+      type: object
+      required:
+        [company, position, location, salary, channel, status, priority, tags, notes]
+      properties:
+        company:
+          type: string
+          maxLength: 40
+        position:
+          type: string
+          maxLength: 60
+        location:
+          type: string
+        salary:
+          type: string
+        channel:
+          $ref: '#/components/schemas/ApplicationChannel'
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        priority:
+          $ref: '#/components/schemas/ApplicationPriority'
+        appliedAt:
+          type: string
+          format: date
+          nullable: true
+        nextActionAt:
+          type: string
+          format: date
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+          maxLength: 500
+        resumeId:
+          type: string
+          nullable: true
+
+    PageApplication:
+      type: object
+      required: [items, total, page, size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        total:
+          type: integer
+        page:
+          type: integer
+        size:
+          type: integer
+
+    Interview:
+      type: object
+      required:
+        [id, applicationId, company, position, round, type, scheduledAt, durationMinutes, location, link, interviewer, status, notes, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        applicationId:
+          type: string
+          nullable: true
+        company:
+          type: string
+        position:
+          type: string
+        round:
+          type: string
+        type:
+          $ref: '#/components/schemas/InterviewType'
+        scheduledAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+        location:
+          type: string
+        link:
+          type: string
+        interviewer:
+          type: string
+        status:
+          $ref: '#/components/schemas/InterviewStatus'
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    InterviewInput:
+      type: object
+      required: [company, round, type, scheduledAt, durationMinutes, location, link, interviewer, status, notes]
+      properties:
+        applicationId:
+          type: string
+          nullable: true
+        company:
+          type: string
+        position:
+          type: string
+        round:
+          type: string
+        type:
+          $ref: '#/components/schemas/InterviewType'
+        scheduledAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+          minimum: 15
+          maximum: 240
+        location:
+          type: string
+        link:
+          type: string
+        interviewer:
+          type: string
+        status:
+          $ref: '#/components/schemas/InterviewStatus'
+        notes:
+          type: string
+
+    CollectionInterview:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Interview'
+        total:
+          type: integer
+
+    Resume:
+      type: object
+      required:
+        [id, name, targetRole, version, fileName, fileSize, fileType, fileUrl, isDefault, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        targetRole:
+          type: string
+        version:
+          type: integer
+        fileName:
+          type: string
+        fileSize:
+          type: integer
+        fileType:
+          type: string
+        fileUrl:
+          type: string
+        isDefault:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CollectionResume:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Resume'
+        total:
+          type: integer
+
+    MetricValue:
+      type: object
+      required: [value, delta]
+      properties:
+        value:
+          type: number
+        delta:
+          type: number
+
+    TrendPoint:
+      type: object
+      required: [date, label, applications, interviews]
+      properties:
+        date:
+          type: string
+          format: date
+        label:
+          type: string
+        applications:
+          type: integer
+        interviews:
+          type: integer
+
+    FunnelItem:
+      type: object
+      required: [key, label, value, rate]
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        value:
+          type: integer
+        rate:
+          type: number
+
+    StatusDatum:
+      type: object
+      required: [status, value]
+      properties:
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        value:
+          type: integer
+
+    DashboardTask:
+      type: object
+      required: [id, title, meta, kind, dueAt]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        meta:
+          type: string
+        kind:
+          type: string
+          enum: [FOLLOW_UP, INTERVIEW, REVIEW]
+        dueAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    Dashboard:
+      type: object
+      required: [metrics, trend, funnel, statusDistribution, upcomingInterviews, recentApplications, tasks]
+      properties:
+        metrics:
+          type: object
+          required: [total, active, interviews, offers, responseRate, weekly]
+          properties:
+            total:
+              $ref: '#/components/schemas/MetricValue'
+            active:
+              $ref: '#/components/schemas/MetricValue'
+            interviews:
+              $ref: '#/components/schemas/MetricValue'
+            offers:
+              $ref: '#/components/schemas/MetricValue'
+            responseRate:
+              $ref: '#/components/schemas/MetricValue'
+            weekly:
+              type: object
+              required: [applied, target]
+              properties:
+                applied:
+                  type: integer
+                target:
+                  type: integer
+        trend:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendPoint'
+        funnel:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunnelItem'
+        statusDistribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusDatum'
+        upcomingInterviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Interview'
+        recentApplications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardTask'
+
+    ChannelStat:
+      type: object
+      required: [channel, applications, interviews, offers, responseRate]
+      properties:
+        channel:
+          $ref: '#/components/schemas/ApplicationChannel'
+        applications:
+          type: integer
+        interviews:
+          type: integer
+        offers:
+          type: integer
+        responseRate:
+          type: number
+
+    WeekdayStat:
+      type: object
+      required: [label, value]
+      properties:
+        label:
+          type: string
+        value:
+          type: integer
+
+    Analytics:
+      type: object
+      required: [range, summary, trend, channels, statusDistribution, weekdays]
+      properties:
+        range:
+          $ref: '#/components/schemas/AnalyticsRange'
+        summary:
+          type: object
+          required: [applications, responseRate, interviewRate, offerRate, avgResponseDays]
+          properties:
+            applications:
+              $ref: '#/components/schemas/MetricValue'
+            responseRate:
+              $ref: '#/components/schemas/MetricValue'
+            interviewRate:
+              $ref: '#/components/schemas/MetricValue'
+            offerRate:
+              $ref: '#/components/schemas/MetricValue'
+            avgResponseDays:
+              $ref: '#/components/schemas/MetricValue'
+        trend:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendPoint'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChannelStat'
+        statusDistribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusDatum'
+        weekdays:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeekdayStat'
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        fieldErrors:
+          type: object
+          additionalProperties:
+            type: string
+        timestamp:
+          type: string
+          format: date-time
